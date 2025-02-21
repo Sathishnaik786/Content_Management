@@ -1,0 +1,23 @@
+.custom-sidebar {
+    width: 250px;
+}
+
+.menu-section {
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.submenu {
+    margin-left: 20px;
+}
+
+.menu-item {
+    text-decoration: none;
+    color: black;
+    transition: background 0.3s ease;
+}
+
+.menu-item:hover {
+    background-color: #f8f9fa;
+}

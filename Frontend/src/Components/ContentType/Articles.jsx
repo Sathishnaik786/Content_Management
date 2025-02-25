@@ -88,7 +88,7 @@ function Articles() {
                     {['all', 'entertainment', 'health', 'education', 'news'].map((cat) => (
                         <button
                             key={cat}
-                            className={`category - btn mx-2 ${category === cat ? 'active' : ''}`}
+                            className={`category - btn mx-2 ${category === cat ? 'btn-primary' : 'btn-outline-primary'}`}
                             onClick={() => setCategory(cat)}
                         >
                             {cat.charAt(0).toUpperCase() + cat.slice(1)}

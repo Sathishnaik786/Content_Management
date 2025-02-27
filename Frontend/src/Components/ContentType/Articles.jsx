@@ -1,6 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-
 
 const cardsData = [
     {
@@ -63,102 +62,95 @@ const cardsData = [
     }
 ];
 
+const categories = [
+    "all", "entertainment", "education", "news", "health", "technology", "nature", "music", "games", "sports", "fashion", "food", "travel", "business", "science", "movies", "history", "politics", "fitness", "automobile"
+];
+
 function Articles() {
     const [category, setCategory] = useState("all");
     const [likes, setLikes] = useState({});
     const [selectedArticle, setSelectedArticle] = useState(null);
+    const categoryRef = useRef(null);
+
+    useEffect(() => {
+        const handleWheelScroll = (event) => {
+            if (categoryRef.current) {
+                event.preventDefault(); // Prevents scrollbar from appearing
+                categoryRef.current.scrollLeft += event.deltaY;
+            }
+        };
+        const categoryElement = categoryRef.current;
+        if (categoryElement) {
+            categoryElement.addEventListener("wheel", handleWheelScroll);
+        }
+        return () => {
+            if (categoryElement) {
+                categoryElement.removeEventListener("wheel", handleWheelScroll);
+            }
+        };
+    }, []);
 
     const handleLike = (index) => {
         setLikes((prev) => ({ ...prev, [index]: (prev[index] || 0) + 1 }));
     };
 
-    const handleCardClick = (article) => {
-        setSelectedArticle(article);
-    };
-
-    const handleBack = () => {
-        setSelectedArticle(null);
-    };
-
     return (
-        <div className="container mt-4">
-            {/* Category Filter Buttons */}
+        <div className="container-fluid mt-2">
             {!selectedArticle && (
-                <div className="d-flex justify-content-center mb-3">
-                    {['all', 'entertainment', 'health', 'education', 'news'].map((cat) => (
+                <div className="category-container d-flex overflow-auto" ref={categoryRef}>
+                    {categories.map((cat) => (
                         <button
                             key={cat}
-                            className={`category - btn mx-2 ${category === cat ? 'btn-primary' : 'btn-outline-primary'}`}
+                            className={`btn btn-dark m-1 ${category === cat ? "bg-white text-dark" : ""}`}
                             onClick={() => setCategory(cat)}
                         >
                             {cat.charAt(0).toUpperCase() + cat.slice(1)}
                         </button>
                     ))}
                 </div>
-            )
-            }
-
-            {/* Article Details View */}
-            {
-                selectedArticle ? (
-                    <div className="text-center">
-                        {/* Back Button */}
-                        <button className="btn btn-light mb-3 float-end" onClick={handleBack}>Back</button>
-
-                        {/* Centered Article Card */}
-                        <div className="d-flex w-100 justify-content-center" >
-                            <div className="card shadow-lg border-0 rounded-4 text-center" style={{ width: "70%" }}>
-                                <img src={selectedArticle.img} className="card-img-top rounded-3" alt="Selected" />
-                                <div className="card-body">
-                                    <h3 className="fw-bold">{selectedArticle.title}</h3>
-                                    <p className="text-muted">{selectedArticle.description}</p>
-                                    <div className="d-flex justify-content-between">
-                                        <span className="fw-bold" style={{ cursor: "pointer" }} onClick={() => handleLike(selectedArticle.title)}>❤ {likes[selectedArticle.title] || 0}</span>
-                                        <span className="text-muted fw-semibold">👁 2.5k</span>
-                                    </div>
-                                </div>
+            )}
+            <div className="row mt-3">
+                {selectedArticle ? (
+                    <div className="col-12 text-center">
+                        <button className="btn btn-light mb-3" onClick={() => setSelectedArticle(null)}>Back</button>
+                        <div className="card mx-auto p-3 shadow-lg" style={{ maxWidth: "600px" }}>
+                            <img src={selectedArticle.img} className="card-img-top" alt="Selected" />
+                            <div className="card-body">
+                                <h3 className="fw-bold">{selectedArticle.title}</h3>
+                                <p className="text-muted">{selectedArticle.description}</p>
+                                <span className="fw-bold" onClick={() => handleLike(selectedArticle.title)} style={{ cursor: "pointer" }}>❤ {likes[selectedArticle.title] || 0}</span>
                             </div>
                         </div>
-
-                        {/* Related Articles Below */}
-                        <h5 className="mt-5">Related Articles</h5>
+                        <h5 className="mt-4">Related Articles</h5>
                         <div className="row justify-content-center mt-3">
-                            {cardsData
-                                .filter(article => article.category === selectedArticle.category && article.title !== selectedArticle.title)
-                                .map((article, index) => (
-                                    <div key={index} className="col-md-3 mb-4">
-                                        <div className="card shadow-sm border-0 rounded-4" onClick={() => handleCardClick(article)} style={{ cursor: "pointer" }}>
-                                            <img src={article.img} className="card-img-top rounded-3" alt="Related" />
-                                            <div className="card-body">
-                                                <h6 className="card-title">{article.title}</h6>
-                                                <p className="text-muted small">{article.description.slice(0, 50)}...</p>
-                                            </div>
+                            {cardsData.filter(article => article.category === selectedArticle.category && article.title !== selectedArticle.title).map((article, index) => (
+                                <div key={index} className="col-md-3 mb-4">
+                                    <div className="card shadow-sm border-0 rounded-4" onClick={() => setSelectedArticle(article)} style={{ cursor: "pointer" }}>
+                                        <img src={article.img} className="card-img-top rounded-3" alt="Related" />
+                                        <div className="card-body">
+                                            <h6 className="card-title">{article.title}</h6>
+                                            <p className="text-muted small">{article.description.slice(0, 50)}...</p>
                                         </div>
                                     </div>
-                                ))}
+                                </div>
+                            ))}
                         </div>
                     </div>
                 ) : (
-                    /* Article List View */
-                    <div className="row mt-5">
-                        {cardsData.filter(card => category === "all" || card.category === category).map((card, index) => (
-                            <div className="col-md-3 mb-4" key={index}>
-                                <div className="card custom-card animate-card shadow-sm border-0 rounded-4" onClick={() => handleCardClick(card)} style={{ cursor: "pointer" }}>
-                                    <img src={card.img} className="card-img-top rounded-3" alt="Card" />
-                                    <div className="card-body d-flex justify-content-between">
-                                        <b className="card-title m-0 fw-semibold">{card.title}</b>
-                                        <div className="ps-3">
-                                            <span className="fw-bold" style={{ cursor: "pointer" }} onClick={(e) => { e.stopPropagation(); handleLike(index); }}>❤ {likes[index] || 0}</span>
-                                            <span className="text-muted fw-semibold">👁 2.5k</span>
-                                        </div>
-                                    </div>
+                    cardsData.filter(card => category === "all" || card.category === category).map((card, index) => (
+                        <div className="col-md-3 mb-3" key={index}>
+                            <div className="card shadow-sm border-0 rounded-4" onClick={() => setSelectedArticle(card)} style={{ cursor: "pointer" }}>
+                                <img src={card.img} className="card-img-top rounded-3" alt="Card" />
+                                <div className="card-body d-flex justify-content-between">
+                                    <b className="card-title m-0 fw-semibold">{card.title}</b>
+                                    <span className="fw-bold" onClick={(e) => { e.stopPropagation(); handleLike(card.title); }} style={{ cursor: "pointer" }}>❤ {likes[card.title] || 0}</span>
                                 </div>
                             </div>
-                        ))}
-                    </div>
-                )
-            }
-        </div >
+                        </div>
+                    ))
+                )}
+            </div>
+        </div>
     );
 }
 

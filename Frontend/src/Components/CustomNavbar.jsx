@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { BrowserRouter as Router, Route, Routes, Link } from "react-router-dom";
 import {
-    AppBar, Toolbar, IconButton, Box, Typography, InputBase
+    AppBar, Toolbar, IconButton, Box, Typography, InputBase,createTheme, ThemeProvider,CssBaseline
 } from "@mui/material";
 import {
     Menu as MenuIcon, Search, Article, OndemandVideo, School, LiveTv,
-    Edit, Category, Schedule, CheckCircle, Dashboard, Book
+    Edit, Category, Schedule, CheckCircle, Dashboard, Book,Analytics,Brightness4 as Brightness4Icon,
+    Brightness7 as Brightness7Icon
 } from "@mui/icons-material";
 import Articles from "./ContentType/Articles";
 import Videos from "./ContentType/Videos";
@@ -16,10 +17,27 @@ import Categorization from "./Categorization";
 import Scheduling from "./Scheduling";
 import ApprovalWorkflow from "./ApprovalWork";
 import ReferencePage from "./ReferencePage";
+import AffiliateSponsoredManagement from "./AffiliateSponsoredManagement";
 
 const CustomNavbar = () => {
     const [menuOpen, setMenuOpen] = useState(false);
     const [searchOpen, setSearchOpen] = useState(false);
+    const [darkMode, setDarkMode] = useState(() => {
+        return localStorage.getItem("darkMode") === "true";
+      });
+    
+      // Toggle theme and save preference
+      const handleThemeChange = () => {
+        const newMode = !darkMode;
+        setDarkMode(newMode);
+        localStorage.setItem("darkMode", newMode);
+      };
+
+  const theme = createTheme({
+    palette: {
+      mode: darkMode ? "dark" : "light",
+    },
+  });
 
     return (
         <Router>
@@ -65,7 +83,14 @@ const CustomNavbar = () => {
                         <IconButton color="inherit" component={Link} to="/reference" sx={{ ml: 2 }}>
                             <Book sx={{ fontSize: 28 }} />
                         </IconButton>
+                        <ThemeProvider theme={theme}>
+             <CssBaseline />
+            <IconButton onClick={handleThemeChange} color="inherit"   sx={{ ml: "auto", color: "white" }}>
+              {darkMode ? <Brightness7Icon /> : <Brightness4Icon />}
+            </IconButton>
+            </ThemeProvider>
                     </Box>
+                   
                 </Toolbar>
             </AppBar>
 
@@ -113,6 +138,8 @@ const CustomNavbar = () => {
                 <Box component={Link} to="/categorization" sx={menuItemStyle}><Category /> Categorization & Tagging</Box>
                 <Box component={Link} to="/scheduling" sx={menuItemStyle}><Schedule /> Scheduling</Box>
                 <Box component={Link} to="/approval-workflow" sx={menuItemStyle}><CheckCircle /> Approval Workflow</Box>
+                <Box component={Link} to="/affiliate" sx={menuItemStyle}><Analytics /> Analytics</Box>
+                
             </Box>
 
             {/* Page Content */}
@@ -135,6 +162,7 @@ const CustomNavbar = () => {
                     <Route path="/scheduling" element={<Scheduling />} />
                     <Route path="/approval-workflow" element={<ApprovalWorkflow />} />
                     <Route path="/reference" element={<ReferencePage />} />
+                    <Route path="/affiliate" element={<AffiliateSponsoredManagement />} />
                 </Routes>
             </Box>
         </Router>
